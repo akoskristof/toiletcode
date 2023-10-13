@@ -88,8 +88,10 @@ const Map = () => {
     className="flex flex-1 flex-row"
       style={{
         justifyContent: "center",
+        height:'100vh',
         alignItems: "center",
         gap: "20px",
+        position:'unset'
       }}
     >
       {/* search component  */}
@@ -108,7 +110,7 @@ const Map = () => {
       <GoogleMap
         zoom={currentLocation || selectedPlace ? 18 : 12}
         center={currentLocation || searchLngLat || center}
-        mapContainerClassName="map flex flex-1"
+        mapContainerClassName="map flex flex-1 relative"
         onLoad={onMapLoad}
       >
         {selectedPlace && <Marker position={searchLngLat} />}
