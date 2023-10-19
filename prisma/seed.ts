@@ -1,5 +1,5 @@
 import { PrismaClient } from '@prisma/client'
-const prisma = new PrismaClient()
+const prisma = new PrismaClient();
 
 async function main() {
     const alice = await prisma.user.upsert({
@@ -7,8 +7,7 @@ async function main() {
         update: {},
         create: {
             email: 'alice@prisma.io',
-            name: 'Alice',
-            username: 'alice',
+            name: 'alice',
             password: '$2a$12$WlDxCd9M0XDJj/xpHXzl/eea4YLpy43q0eceEQqjaWEFrOZjaqCeW',
             role: "BASIC",
             // posts: {

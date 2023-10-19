@@ -41,19 +41,20 @@ model Session {
 }
 
 model User {
-  id        String     @id @default(cuid())
-  email     String     @unique
-  username  String
-  name      String?
-  password  String
-  role      Role       @default(BASIC)
-  createdAt DateTime   @default(now()) @map(name: "created_at")
-  updatedAt DateTime   @updatedAt @map(name: "updated_at")
-  locations Location[]
-  posts     Post[]
-  reactions Reaction[]
-  accounts  Account[]
-  sessions  Session[]
+  id            String     @id @default(cuid())
+  email         String     @unique
+  name          String
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role       @default(BASIC)
+  createdAt     DateTime   @default(now()) @map(name: "created_at")
+  updatedAt     DateTime   @updatedAt @map(name: "updated_at")
+  locations     Location[]
+  posts         Post[]
+  reactions     Reaction[]
+  accounts      Account[]
+  sessions      Session[]
 
   @@map(name: "users")
 }
