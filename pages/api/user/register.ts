@@ -2,6 +2,7 @@ import { prisma } from '@/lib/prisma';
 import { Prisma } from "@prisma/client";
 const bcrypt = require('bcrypt');
 
+// eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: any, res: any) => {
     if (req.method === "POST") {
         let errors = [];
