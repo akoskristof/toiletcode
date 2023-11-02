@@ -10,13 +10,13 @@ async function main() {
             name: 'alice',
             password: '$2a$12$WlDxCd9M0XDJj/xpHXzl/eea4YLpy43q0eceEQqjaWEFrOZjaqCeW',
             role: "BASIC",
-            // posts: {
-            //     create: {
-            //         title: 'Check out Prisma with Next.js',
-            //         content: 'https://www.prisma.io/nextjs',
-            //         published: true,
-            //     },
-            // },
+            posts: {
+                create: {
+                    message: 'test ¯_(ツ)_/¯',
+                    location: {create: {name: 'örs kfc', lat: 12.5, lng:12.6, userId: '1'}},
+                    code: '1234',
+                },
+            },
         },
     })
     console.log({ alice })

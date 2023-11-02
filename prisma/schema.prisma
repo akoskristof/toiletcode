@@ -60,31 +60,40 @@ model User {
 }
 
 model Location {
-  id     String @id @default(cuid())
-  lat    Float
-  lng    Float
-  name   String
-  author User   @relation(fields: [userId], references: [id])
-  userId String
-  Post   Post[]
+  id        String   @id @default(cuid())
+  lat       Float
+  lng       Float
+  name      String
+  author    User     @relation(fields: [userId], references: [id])
+  userId    String
+  Post      Post[]
+  createdAt DateTime @default(now()) @map(name: "created_at")
+  updatedAt DateTime @updatedAt @map(name: "updated_at")
 }
 
 model Post {
-  id         String   @id @default(cuid())
+  id         String     @id @default(cuid())
   message    String?
-  location   Location @relation(fields: [locationId], references: [id])
+  location   Location   @relation(fields: [locationId], references: [id])
   code       String
-  author     User     @relation(fields: [userId], references: [id])
+  reactions  Reaction[]
+  author     User       @relation(fields: [userId], references: [id])
   userId     String
   locationId String
+  createdAt  DateTime   @default(now()) @map(name: "created_at")
+  updatedAt  DateTime   @updatedAt @map(name: "updated_at")
 }
 
 model Reaction {
-  id           String  @id @default(cuid())
+  id           String   @id @default(cuid())
   like_dislike Boolean
   comment      String?
-  author       User    @relation(fields: [userId], references: [id])
+  author       User     @relation(fields: [userId], references: [id])
+  post         Post     @relation(fields: [postId], references: [id])
+  postId       String
   userId       String
+  createdAt    DateTime @default(now()) @map(name: "created_at")
+  updatedAt    DateTime @updatedAt @map(name: "updated_at")
 }
 
 model VerificationToken {

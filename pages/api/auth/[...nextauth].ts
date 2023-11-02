@@ -1,5 +1,5 @@
 import { NextApiHandler } from 'next';
-import NextAuth, {NextAuthOptions} from 'next-auth';
+import NextAuth, {NextAuthOptions, User} from 'next-auth';
 import { PrismaAdapter } from '@next-auth/prisma-adapter';
 import GitHubProvider from 'next-auth/providers/github';
 import CredentialsProvider from "next-auth/providers/credentials";
@@ -45,24 +45,6 @@ const options: NextAuthOptions = {
                 } else {
                     return null;
                 }
-
-                /*const user = await prisma.user.findUnique({
-                    where: {
-                        email: credentials.email
-                    }
-                });
-
-                if (user) {
-                    const passwordCorrect = await compare(credentials?.password, user.password);
-                    if(passwordCorrect) {
-                        return {
-                            id: user.id,
-                            email: user.email,
-                        };
-                    }
-                }
-                return null;
-                */
             }
         }),
     ],
@@ -72,17 +54,29 @@ const options: NextAuthOptions = {
 
     pages: {
         /*signIn: "/login",
-        signOut: "/login",
         error: "/login",*/
     },
 
     callbacks: {
         session: ({session, token}) => {
             console.log('Session Callback', {session, token});
-            return session
+            return {
+                ...session,
+                user: {
+                    ...session.user,
+                    id: token.id,
+                }
+            }
         },
         jwt: ({ token, user }) => {
             console.log('JWT Callback', { token, user });
+            if (user) {
+                const u = user as unknown as any
+                return {
+                    ...token,
+                    id: u.id,
+                }
+            }
             return token
         }
     },
