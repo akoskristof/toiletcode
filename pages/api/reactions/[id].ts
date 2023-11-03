@@ -11,6 +11,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         });
         return res.json(reactions)
     } else {
-        return res.status(405);
+        return res.status(405).json({error: "This request only supports GET requests"})
     }
 }

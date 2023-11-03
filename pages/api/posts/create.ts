@@ -9,15 +9,27 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         const {message, code, userId, locationId} = req.body;
 
         try {
-            const createdPost = await prisma.post.create({
-                data: {
-                    message: message,
-                    code: code,
-                    userId: userId,
+            const post = await prisma.post.findFirst({
+                where: {
                     locationId: locationId
                 }
             });
-            return res.status(201).json({createdPost});
+
+            if (post) {
+                errors.push("A post with this location has already been registered");
+                return res.status(400).json({errors});
+            } else {
+                const createdPost = await prisma.post.create({
+                    data: {
+                        message: message,
+                        code: code,
+                        userId: userId,
+                        locationId: locationId
+                    }
+                });
+                return res.status(201).json({createdPost});
+            }
+
         } catch(e: any) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2002") {

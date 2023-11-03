@@ -6,6 +6,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const posts = await prisma.post.findMany();
         return res.json(posts)
     } else {
-        return res.status(405);
+        return res.status(405).json({error: "This request only supports GET requests"})
     }
 }

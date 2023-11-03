@@ -6,6 +6,6 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
         const locations = await prisma.location.findMany();
         return res.json(locations)
     } else {
-        return res.status(405);
+        return res.status(405).json({error: "This request only supports GET requests"})
     }
 }

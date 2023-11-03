@@ -34,7 +34,6 @@ export default async (req: any, res: any) => {
                 });
                 return res.status(201).json({createdUser});
             }
-
         }
         catch (e: any) {
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
