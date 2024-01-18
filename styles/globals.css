@@ -18,11 +18,11 @@ html {
 
 h1 {
     margin: 16px;
-    font-size: 48pt;
+    font-size: 28pt;
 }
 
 h2 {
-    font-size: 28pt;
+    font-size: 20pt;
 }
 
 p {
@@ -47,12 +47,21 @@ p {
     flex:1 1 50%;
     object-fit: cover;
 }
+.icon {
+    object-fit:contain;
+    cursor: pointer;
+    transition: all 200ms;
+}
+.icon:hover {
+    transform: scale(1.1);
+}
 
-.button {
+.button, button {
     background-color: #0085FF;
     border-radius: 8px;
     color:white;
     padding: 8px;
+    margin: 4px;
     padding-left: 16px;
     padding-right: 16px;
 }

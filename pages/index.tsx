@@ -4,12 +4,13 @@ import Link from "next/link";
 import map from '../assets/map.jpeg'
 import stars from '../assets/stars.png'
 import community from '../assets/community.png'
+import { signIn } from "next-auth/react";
 
 
 export default function Page() {
     return <BasePage>
         <h1>Toilet Code</h1>
-        <div className='container flex flex-col p-12 pb-4'>
+        <div className='container p-12 pb-4'>
             <h2>Egy oldal, hogy sose kelljen várni.</h2>
             <div className="flex flex-row">
                 <div className="module flex flex-col">
@@ -25,9 +26,11 @@ export default function Page() {
                     <Image src={community} alt="A map" className="image"/>
                 </div>
             </div>
+            <Link href="map" className="text-center button">Tovább a térképre!</Link>
+            
             <div className="flex flex-row justify-center items-center">
-                <Link href="signup" className="m-4 p-8">Regisztráció</Link>
-                <Link href="login" className="m-4 button">Bejelentkezés</Link>
+                <span onClick={()=>signIn('email',{callbackUrl:'map'})} className="m-4 p-8">Regisztráció</span>
+                <button onClick={()=>signIn('email',{callbackUrl:'map'})} className="m-4 button">Bejelentkezés</button>
             </div>
         </div>
     </BasePage>

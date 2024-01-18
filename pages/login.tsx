@@ -5,6 +5,7 @@ import map from '../assets/map.png'
 import { FormEvent, useState } from "react";
 import axios from "axios";
 import { redirect, useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 export default function Page(props) {
     const [response, setResponse] = useState(null);
@@ -14,11 +15,7 @@ export default function Page(props) {
         const data = Object.fromEntries(new FormData(e.currentTarget));
 
         console.log('signin',data);
-        axios.post('/api/user/login',data).then(res=>{
-            console.log(res);
-            window.localStorage.setItem('loggedIn','true');
-            window.dispatchEvent(new Event("storage"));
-            push('/map');
+        signIn("email", {...data,callbackUrl: '/map'}).then(res=>{
             
         }).catch(err=>{
             setResponse(err.response?.data?.message)
