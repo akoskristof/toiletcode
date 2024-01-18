@@ -4,7 +4,7 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'PUT') {
         const id = String(req.query.id);
-        const {like_dislike, comment, postId, userId} = req.body;
+        const {like_dislike, comment} = req.body;
         const updated_reaction = await prisma.reaction.update({
             where: {
                 id: id

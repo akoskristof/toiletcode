@@ -1,12 +1,14 @@
 import {prisma} from "@/lib/prisma";
 import type { NextApiRequest, NextApiResponse } from 'next';
 import {Prisma} from "@prisma/client";
+import {useSession} from "next-auth/react";
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
         let errors = [];
-        const {like_dislike, comment, postId, userId} = req.body;
+        const {like_dislike, comment, postId} = req.body;
+        const { data: session } = useSession()
 
         try {
             const createdReaction = await prisma.reaction.create({
@@ -14,7 +16,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                     like_dislike: like_dislike,
                     comment: comment,
                     postId: postId,
-                    userId: userId
+                    userId: session?.user.id
                 }
             });
             return res.status(201).json({createdReaction});

@@ -1,12 +1,14 @@
 import {prisma} from "@/lib/prisma";
 import type { NextApiRequest, NextApiResponse } from 'next';
 import {Prisma} from "@prisma/client";
+import {useSession} from "next-auth/react";
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
         let errors = [];
-        const {message, code, userId, locationId} = req.body;
+        const {message, code, locationId} = req.body;
+        const { data: session } = useSession()
 
         try {
             const post = await prisma.post.findFirst({
@@ -23,7 +25,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                     data: {
                         message: message,
                         code: code,
-                        userId: userId,
+                        userId: session?.user.id,
                         locationId: locationId
                     }
                 });

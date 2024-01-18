@@ -1,12 +1,17 @@
 import {prisma} from "@/lib/prisma";
 import type { NextApiRequest, NextApiResponse } from 'next';
 import {Prisma} from "@prisma/client";
+import {useSession} from "next-auth/react";
+import {getToken} from "next-auth/jwt";
+import {getServerSession} from "next-auth";
+
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
         let errors = [];
-        const {lat, lng, name, userId} = req.body;
+        const {lat, lng, name} = req.body;
+        const { data: session } = useSession()
 
         try {
             const location = await prisma.location.findFirst({
@@ -25,7 +30,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                         lat: lat,
                         lng: lng,
                         name: name,
-                        userId: userId
+                        userId: session?.user.id
                     }
                 });
                 return res.status(201).json({createdLocation});
