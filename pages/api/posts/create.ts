@@ -11,7 +11,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         try {
             const post = await prisma.post.findFirst({
                 where: {
-                    locationId: locationId
+                    locationId: locationId,
+                    code
                 }
             });
 

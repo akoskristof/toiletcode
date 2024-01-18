@@ -4,9 +4,9 @@ import type { NextApiRequest, NextApiResponse } from 'next';
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
     if (req.method === 'GET') {
         const id = String(req.query.id);
-        const post = await prisma.post.findUnique({
+        const post = await prisma.post.findMany({
             where: {
-                id: id
+                locationId: id
             }
         });
         return res.json(post)

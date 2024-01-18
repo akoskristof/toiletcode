@@ -7,42 +7,76 @@ import {
 } from "@react-google-maps/api";
 import BasePage from "@/components/BasePage";
 import Link from "next/link";
+import axios from "axios";
+import { Prisma, Location } from "@prisma/client";
+import Comments from "@/components/Comments";
+import Posts from "@/components/Posts";
+
+interface p {
+  lat: Number
+  lng: Number
+}
+type place = p | google.maps.LatLng | null
 
 const Map = (props) => {
   const [selectedPlace, setSelectedPlace] = useState(null);
-  const [searchLngLat, setSearchLngLat] = useState(null);
+  const [center, setCenter] = useState<place>(null);
+
   const [currentLocation, setCurrentLocation] = useState(null);
+  const [newPlace, setNewPlace] = useState<place>(null);
   const autocompleteRef = useRef(null);
+  const [searchString, setSearchString] = useState('');
   const [address, setAddress] = useState("");
-  const [places, setPlaces] = useState([
-    {title:'Móricz mc donalds',lat:47.5,lng:19.1},
-    {title:'Fővám tér burger king',lat:47.56,lng:19.07},
-    {title:'Nyugati Gyrosos',lat:47.4,lng:19.15},
-    {title:'Keleti Meki',lat:47.5,lng:19.03},
-
-  ]);
-  const [selected, setSelected] = useState(null);
-
-  // laod script for google map
+  const [places, setPlaces] = useState<Array<Location>>([]);
+  const [selected, setSelected] = useState<String|null>(null);
+  const currentPlace = places.find(e=>e.id==selected);
+  const mapRef = useRef()
+  const Budapest = { lat: 47.49697646921568, lng: 19.05388508820331 };
   const { isLoaded } = useLoadScript({
     googleMapsApiKey: process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY,
     libraries: ["places"],
   });
   useEffect(() => {
+    axios.get('/api/locations/getall').then(res=>{
+      console.log(res);
+      setPlaces(res.data)
+      
+    }).catch(err=>{
+      console.log(err);
+      
+    })
+  }, []);
+  useEffect(() => {
     if (selected!=null)
     handlePlaceChanged()
   }, [selected]);
   
-  // handle place change on search
-  const handlePlaceChanged = () => {
-    const place = places[selected];
-    setSelectedPlace(place);
-    setSearchLngLat({
+  const handlePlaceChanged = () => { 
+    const place = places.find(e=>e.id==selected);
+    console.log(place);
+    if (!place) return
+
+    setCenter({
       lat: place.lat,
       lng: place.lng,
     });
     setCurrentLocation(null);
   };
+
+  const searchForPlace = () => {
+    const place = autocompleteRef?.current?.getPlace();
+    console.log(place);
+    setCenter({
+      lat: place.geometry.location.lat(),
+      lng: place.geometry.location.lng(),
+    });
+    setNewPlace({
+      lat: place.geometry.location.lat(),
+      lng: place.geometry.location.lng(),
+    });
+    
+    
+  }
 
   // get current location
   const handleGetLocationClick = () => {
@@ -51,7 +85,7 @@ const Map = (props) => {
         (position) => {
           const { latitude, longitude } = position.coords;
           setSelectedPlace(null);
-          setSearchLngLat(null);
+          setCenter(null);
           setCurrentLocation({ lat: latitude, lng: longitude });
         },
         (error) => {
@@ -63,11 +97,21 @@ const Map = (props) => {
     }
   };
 
+  const send = (e)=> {
+    e.preventDefault();
+    axios.post('api/locations/create',{
+      lat: newPlace?.lat,
+      lng: newPlace?.lng,
+      searchString
+    }).then((res)=>{
+      const data :Location = res.data
+      setPlaces([...places,data])
+      setNewPlace(null)
+    })
+  }
 
   if (!isLoaded) return <div>Loading....</div>;
 
-  // static lat and lng
-  const center = { lat: 41, lng: 21 };
 
   // on map load
   const onMapLoad = (map) => {
@@ -103,60 +147,62 @@ const Map = (props) => {
 
   return (
     <BasePage
-    back='/'
-    style={{flexDirection:'row'}}
+    style={{flexDirection:'row',background:'white'}}
     >
-      <div className="flex flex-col flex-1 bg-white min-h-screen">
+      <div className="flex-10 bg-white" style={{height:"90vh",width:'300px'}}>
         <Link href='/' className="self-start p-8 pb-0 text-xl z-10">{"< Vissza"}</Link>
-        <h1>ToiletCode</h1>
-        <Autocomplete
-        onLoad={(autocomplete) => {
-          console.log("Autocomplete loaded:", autocomplete);
-          autocompleteRef.current = autocomplete;
-        }}
-        onPlaceChanged={handlePlaceChanged}
-        className="flex align-center"
-        options={{ fields: ["address_components", "geometry", "name"] }}
-      >
-        <input type="text" placeholder="Search for a location" 
-        className="flex-1 mr-8 self-center"/>
-        </Autocomplete>
-        {selected==null ? places.map((e,i)=>{
-          return (<button key={i} className={` m-2 ${selected==i && ' button'}`}
-          onClick={()=>setSelected(i)}>
-            <p>{e.title}</p>
+        {selected==null ? <div>{places.map((e)=>{
+          return (<button key={e.id} style={{width:'90%'}} className={` m-2 ${selected==e.id && ' button'}`}
+          onClick={()=>setSelected(e.id)}>
+            <p>{e.name}</p>
           </button>)
-        }):
-        <div>
+        })}
+        <div className=" bottom-0">
+            <form onSubmit={send}>
+                <h2>Új hely feltöltése</h2>
+                <label htmlFor="placeName">Hely neve</label><br/>
+                <div className="flex flex-row">
+                  <Autocomplete
+                    onLoad={(autocomplete) => {
+                      console.log("Autocomplete loaded:", autocomplete);
+                      autocompleteRef.current = autocomplete;
+                    }}
+                    onPlaceChanged={searchForPlace}
+                    className="flex align-center"
+                    options={{ fields: ["address_components", "geometry", "name"] }}
+                  >
+                    <input type="text" placeholder="Search for a location" value={searchString} onChange={(e)=>setSearchString(e.target.value)} name='placeName' id='placeName'
+                      className="grow-1"/>
+                  </Autocomplete>
+                  <button onClick={()=>setSearchString('')}>X</button>
+                </div>
+                <input type="submit" value="Küldés" />
+            </form>
+          </div>
+        </div>:
+        <div className=" bg-slate-000	p-2">
           <div className="flex">
           
-            <span style={{flexGrow:1,fontSize:'24px'}}>{places[selected].title} </span>
-            <button className='mr-5 text-xl' onClick={()=>setSelected(null)}>X</button>
+            <h2 style={{flexGrow:1,paddingLeft:20,paddingTop:4}}>{currentPlace?.name} </h2>
+            <span className='mr-5 text-xl cursor-pointer' onClick={()=>setSelected(null)}>X</span>
           
-        </div><p>3.5 km messze tőled</p>
-          <h1 className='text-center'>#4325</h1>  
-          <p className="pl-3">Kommentek:</p>
-          <div className="overflow-hidden height-200">  
-            {[1,1,1].map((e,i)=><div
-            key={'komment'+i} className="p-2 m-2 bg-slate-200	">
-              <p><b>Egy user</b></p>
-              <span>Ez egy jó hely!</span>
-            </div>)}
           </div>
+          <Posts id={currentPlace?.id} />
+          
         </div>}
       </div>
-
-      {/* map component  */}
       <GoogleMap
         zoom={currentLocation || selectedPlace ? 18 : 12}
-        center={currentLocation || searchLngLat || center}
+        center={center || currentLocation || Budapest}
         mapContainerClassName="map"
         onLoad={onMapLoad}
+        ref={mapRef}
       >
-        {places.map((e,i)=><Marker position={{lat:e.lat,lng:e.lng}} key={'marker'+i}
-        onClick={()=>setSelected(i)}/>)}
-        {selectedPlace && <Marker position={searchLngLat} />}
+        {!newPlace && places.map((e,i)=><Marker position={{lat:e.lat,lng:e.lng}} key={'marker'+i}
+        onClick={()=>setSelected(e.id)}/>)}
+        {selectedPlace && <Marker position={center} />}
         {currentLocation && <Marker position={currentLocation} />}
+        {newPlace && <Marker position={newPlace} title='Hozzáadjuk ezt a helyet?'/>}
       </GoogleMap>
     </BasePage>
   );
