@@ -4,6 +4,7 @@ import {Prisma} from "@prisma/client";
 import {useSession} from "next-auth/react";
 import {getToken} from "next-auth/jwt";
 import {getServerSession} from "next-auth";
+import { auth } from "../auth/auth";
 
 
 // eslint-disable-next-line import/no-anonymous-default-export
@@ -11,7 +12,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
         let errors = [];
         const {lat, lng, name} = req.body;
-        const { data: session } = useSession()
+        const  session = await auth(req,res)
 
         try {
             const location = await prisma.location.findFirst({
@@ -25,6 +26,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                 errors.push("A location with the given coordinates has already been registered");
                 return res.status(400).json({errors});
             } else {
+                console.log('create');
+                
                 const createdLocation = await prisma.location.create({
                     data: {
                         lat: lat,
@@ -33,9 +36,12 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                         userId: session?.user.id
                     }
                 });
-                return res.status(201).json({createdLocation});
+                console.log(createdLocation);
+                return res.status(201).json(createdLocation);
             }
         } catch(e: any) {
+            console.log(e);
+            
             if (e instanceof Prisma.PrismaClientKnownRequestError) {
                 if (e.code === "P2002") {
                     return res.status(400).json({ message: e.message });

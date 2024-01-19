@@ -2,13 +2,15 @@ import {prisma} from "@/lib/prisma";
 import type { NextApiRequest, NextApiResponse } from 'next';
 import {Prisma} from "@prisma/client";
 import {useSession} from "next-auth/react";
+import { auth } from "../auth/auth";
 
 // eslint-disable-next-line import/no-anonymous-default-export
 export default async (req: NextApiRequest, res: NextApiResponse) => {
     if (req.method === "POST") {
         let errors = [];
         const {message, code, locationId} = req.body;
-        const { data: session } = useSession()
+        const  session = await auth(req,res)
+        
 
         try {
             const post = await prisma.post.findFirst({
@@ -17,6 +19,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
                     code
                 }
             });
+            console.log(post);
+            
 
             if (post) {
                 errors.push("A post with this location has already been registered");

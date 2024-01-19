@@ -11,6 +11,7 @@ import axios from "axios";
 import { Prisma, Location } from "@prisma/client";
 import Comments from "@/components/Comments";
 import Posts from "@/components/Posts";
+import { useSession } from "next-auth/react";
 
 interface p {
   lat: Number
@@ -21,6 +22,7 @@ type place = p | google.maps.LatLng | null
 const Map = (props) => {
   const [selectedPlace, setSelectedPlace] = useState(null);
   const [center, setCenter] = useState<place>(null);
+  const session = useSession();
 
   const [currentLocation, setCurrentLocation] = useState(null);
   const [newPlace, setNewPlace] = useState<place>(null);
@@ -102,10 +104,11 @@ const Map = (props) => {
     axios.post('api/locations/create',{
       lat: newPlace?.lat,
       lng: newPlace?.lng,
-      searchString
+      name:searchString
     }).then((res)=>{
       const data :Location = res.data
       setPlaces([...places,data])
+      setSearchString('');
       setNewPlace(null)
     })
   }
@@ -150,7 +153,8 @@ const Map = (props) => {
     style={{flexDirection:'row',background:'white'}}
     >
       <div className="flex-10 bg-white" style={{height:"90vh",width:'300px'}}>
-        <Link href='/' className="self-start p-8 pb-0 text-xl z-10">{"< Vissza"}</Link>
+    {<span>Bejelentkezve mint {session.data?.user?.name}</span>}
+        <Link href='/' className=" p-8 pb-0 text-xl z-10" style={{width:'100%'}}><button>{"Vissza"}</button></Link>
         {selected==null ? <div>{places.map((e)=>{
           return (<button key={e.id} style={{width:'90%'}} className={` m-2 ${selected==e.id && ' button'}`}
           onClick={()=>setSelected(e.id)}>

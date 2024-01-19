@@ -29,8 +29,8 @@ export default function Page() {
             <Link href="map" className="text-center button">Tovább a térképre!</Link>
             
             <div className="flex flex-row justify-center items-center">
-                <span onClick={()=>signIn('email',{callbackUrl:'map'})} className="m-4 p-8">Regisztráció</span>
-                <button onClick={()=>signIn('email',{callbackUrl:'map'})} className="m-4 button">Bejelentkezés</button>
+                <span onClick={()=>signIn('email',{callbackUrl:'/map'})} className="m-4 p-8">Regisztráció</span>
+                <button onClick={()=>signIn('email',{callbackUrl:'/map'})} className="m-4 button">Bejelentkezés</button>
             </div>
         </div>
     </BasePage>

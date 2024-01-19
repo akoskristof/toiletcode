@@ -64,6 +64,14 @@ p {
     margin: 4px;
     padding-left: 16px;
     padding-right: 16px;
+
+    cursor: pointer;
+}
+
+.code {
+    width:80%;
+    margin:8px;
+    
 }
 
 input {
